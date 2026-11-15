@@ -1,6 +1,6 @@
 # TDE - Programação Concorrente
 
-**Link do vídeo no YouTube:** [Colocar link aqui]
+**Link do vídeo no YouTube:** 
  
 **Integrantes:**
 * Pedro Henrique Alves de Souza Fagundes

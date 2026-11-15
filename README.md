@@ -6,7 +6,7 @@
 * Pedro Henrique Alves de Souza Fagundes
 * Yasmim Egidio
 
-**Linguagem escolhida:** Python 3
+**Linguagem escolhida:** Python 
 
 ---
 
@@ -15,7 +15,7 @@
 Não precisa instalar nenhuma biblioteca externa, pois usamos apenas o módulo `threading`. Para rodar, abra o terminal na pasta principal do projeto e digite:
 
 ```bash
-# Parte 1 - Versão com deadlock (use Ctrl+C no terminal para parar quando travar)
+# Parte 1 - Versão com deadlock 
 python parte1-filosofos/filosofos_deadlock.py
 
 # Parte 1 - Versão corrigida
@@ -23,7 +23,7 @@ python parte1-filosofos/filosofos_corrigido.py
 
 
 
-Parte 1 — Jantar dos Filósofos
+Jantar dos Filósofos
 
 Relatório
 

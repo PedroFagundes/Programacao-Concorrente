@@ -1,8 +1,7 @@
 # TDE - Programação Concorrente
 
 **Link do vídeo no YouTube:** [Colocar link aqui]
-
-**Grupo:** [Nome do Grupo]  
+ 
 **Integrantes:**
 * Pedro Henrique Alves de Souza Fagundes
 * Yasmim Egidio

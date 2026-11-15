@@ -20,6 +20,9 @@ python parte1-filosofos/filosofos_deadlock.py
 
 # Parte 1 - Versão corrigida
 python parte1-filosofos/filosofos_corrigido.py
+
+# Parte 2 - Contador com e sem semáforo
+python parte2-semaforo/contador_semaforo.py
 ```
 
 ---
@@ -136,6 +139,47 @@ Filosofo 1 -> pensando (encerrou)
 Filosofo 0 -> comendo (garfos 0 e 1) | Refeicao 3
 Filosofo 0 -> pensando (encerrou)
 Simulacao concluida. Refeicoes por filosofo: [3, 3, 3, 3, 3]
+```
+
+---
+
+## Parte 2 — Threads e Semáforos
+
+### Relatório e Discussão
+Nesta parte, criamos 8 threads onde cada uma incrementa um contador compartilhado 200.000 vezes (total esperado de `1.600.000`). 
+
+Na primeira versão (`rodar_sem_trava`), não usamos nenhum controle, o que gera uma condição de corrida. Como várias threads leem o mesmo valor da variável ao mesmo tempo antes de outra terminar de somar e salvar, uma acaba sobrescrevendo o valor da outra e vários incrementos se perdem. Na segunda versão (`rodar_com_trava`), colocamos um semáforo binário (`BoundedSemaphore(1)`) que funciona como uma trava: apenas uma thread por vez entra na seção crítica para ler e atualizar o contador, garantindo o valor exato de `1.600.000`.
+
+Sobre o desempenho (throughput), a versão com semáforo demora bem mais para rodar porque as threads não conseguem executar o incremento ao mesmo tempo, ficando paradas na fila esperando o `release()`. Além disso, mesmo com o GIL do Python alternando a execução das threads, os comandos `acquire()` e `release()` funcionam como barreiras implícitas de memória, garantindo que cada thread sempre enxergue o valor mais recente gravado pela thread anterior.
+
+
+### Tabela de Resultados (3 execuções)
+
+| Execução | Versão | Esperado | Obtido | Tempo (s) |
+| :--- | :--- | :---: | :---: | :---: |
+| 1 | Sem sincronização | 1.600.000 | 1.287.368 | 0.25s |
+| 2 | Sem sincronização | 1.600.000 | 1.381.175 | 0.26s |
+| 3 | Sem sincronização | 1.600.000 | 1.282.014 | 0.26s |
+| 1 | Com semáforo binário | 1.600.000 | 1.600.000 | 2.28s |
+| 2 | Com semáforo binário | 1.600.000 | 1.600.000 | 2.12s |
+| 3 | Com semáforo binário | 1.600.000 | 1.600.000 | 2.16s |
+
+### Logs de execução
+```text
+Execução 1:
+Valor esperado (T x M): 1600000
+[Sem semaforo] Obtido: 1287368 | Perdidos: 312632 | Tempo: 0.25s
+[Com semaforo] Obtido: 1600000 | Perdidos: 0 | Tempo: 2.28s
+
+Execução 2:
+Valor esperado (T x M): 1600000
+[Sem semaforo] Obtido: 1381175 | Perdidos: 218825 | Tempo: 0.26s
+[Com semaforo] Obtido: 1600000 | Perdidos: 0 | Tempo: 2.12s
+
+Execução 3:
+Valor esperado (T x M): 1600000
+[Sem semaforo] Obtido: 1282014 | Perdidos: 317986 | Tempo: 0.26s
+[Com semaforo] Obtido: 1600000 | Perdidos: 0 | Tempo: 2.16s
 ```
 
 ---

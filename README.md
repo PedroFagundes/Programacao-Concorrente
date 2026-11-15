@@ -1,120 +1,136 @@
-# Trabalho Prático - Programação Concorrente
+# TDE - Programação Concorrente
 
-Repositório com as implementações e análises desenvolvidas para a disciplina de Performance de Sistemas Ciberfisico. O projeto aborda problemas clássicos de concorrência em Python, incluindo exclusão mútua, condições de corrida, semáforos e prevenção de deadlock.
+**Link do vídeo no YouTube:** [Colocar link aqui]
 
-## Grupo
-* **Número do Grupo: 23** 
-* **Integrantes:**
-  * Yasmim Egidio de Oliveira 
-  * Pedro Henrique Fagundes 
+**Grupo:** [Nome do Grupo]  
+**Integrantes:**
+* Pedro Henrique Alves de Souza Fagundes
+* Yasmim Egidio
 
-## Linguagem 
-O projeto foi desenvolvido em **Python 3** utilizando apenas a biblioteca padrão (`threading`, `time` e `sys`).
+**Linguagem escolhida:** Python 3
 
+---
 
-## Como Executar
+## Como executar os códigos
 
-Abra o terminal na pasta raiz do projeto e rode os arquivos diretamente com o interpretador Python:
+Não precisa instalar nenhuma biblioteca externa, pois usamos apenas o módulo `threading`. Para rodar, abra o terminal na pasta principal do projeto e digite:
 
-**Contador Concorrente com Semáforo**
 ```bash
-python3 parte2-semaforo/contador_semaforo.py
-```
+# Parte 1 - Versão com deadlock (use Ctrl+C no terminal para parar quando travar)
+python parte1-filosofos/filosofos_deadlock.py
 
-**Deadlock e Hierarquia de Recursos**
-```bash
-python3 parte3-deadlock/deadlock_reproducao.py
-python3 parte3-deadlock/deadlock_corrigido.py
-```
+# Parte 1 - Versão corrigida
+python parte1-filosofos/filosofos_corrigido.py
 
-## Relatório Técnico
 
-### Threads e Semáforos (Contador Concorrente)
 
-Nesta etapa (`contador_semaforo.py`), criamos um benchmark para comparar o incremento de um contador compartilhado (`shared_counter['value']`) entre 8 threads fazendo 250.000 incrementos cada, totalizando 2.000.000 de operações esperadas.
+Parte 1 — Jantar dos Filósofos
 
-#### Resultados das Execuções
+Relatório
 
-| Versão | Execução | Esperado | Obtido | Tempo (s) | Observação |
-| :--- | :---: | :---: | :---: | :---: | :--- |
-| Sem Sincronização | #1 | 2.000.000 | 1.142.850 | 0.0812 s | Perda de 42,86% |
-| Sem Sincronização | #2 | 2.000.000 | 1.025.412 | 0.0765 s | Perda de 48,73% |
-| Sem Sincronização | #3 | 2.000.000 | 1.210.980 | 0.0789 s | Perda de 39,45% |
-| Com Semáforo Binário | #1 | 2.000.000 | 2.000.000 | 1.4523 s | Valor exato |
-| Com Semáforo Binário | #2 | 2.000.000 | 2.000.000 | 1.4110 s | Valor exato |
-| Com Semáforo Binário | #3 | 2.000.000 | 2.000.000 | 1.4398 s | Valor exato |
+Temos 5 filósofos e 5 garfos na mesa, onde cada filósofo alterna entre pensar, ficar com fome e comer usando os dois garfos ao seu lado.   Na versão ingênua (filosofos_deadlock.py), todos pegam o garfo da esquerda ao mesmo tempo e ficam esperando o da direita, causando deadlock porque ninguém larga o garfo que já pegou. Na versão corrigida (filosofos_corrigido.py), numeramos os garfos de 0 a 4 e forçamos cada filósofo a pegar primeiro o garfo de menor número e depois o de maior número. Isso elimina a espera circular de Coffman, pois o filósofo 4 pega o garfo 0 antes do 4, impedindo que feche um ciclo de espera na mesa. 
 
-**Saída no terminal:**
-```text
-Parte 2: Teste de concorrência e Semáforo
-Parâmetros: 8 Threads | 250,000 Incrementos por thread
-Valor Esperado Matematicamente: 2,000,000
+Pseudocódigo e Justiça/Progresso
 
-[Executando] Versão 1: Sem Sincronização (Race Condition)...
-[Executando] Versão 2: Com Semáforo Binário...
+para cada filosofo p:
+    left  = min(p, (p + 1) mod 5)
+    right = max(p, (p + 1) mod 5)
 
-======================================================================
-Versão                         | Valor Obtido    | Tempo (s) 
-======================================================================
-1. Sem Sincronização           | 1,142,850       | 0.0812s
-2. Com Semáforo Binário        | 2,000,000       | 1.4523s
-======================================================================
+    enquanto refeicoes < 3:
+        pensar()
+        estado[p] = "com fome"
+        adquirir(garfos[left])
+        adquirir(garfos[right])
+        estado[p] = "comendo"
+        comer()
+        liberar(garfos[right])
+        liberar(garfos[left])
 
-[Diagnóstico] A versão sem sincronização perdeu 42.86% dos dados.
-[Diagnóstico] A versão com semáforo atingiu o valor esperado.
-```
+Logs de execução
+Com deadlock:
 
-#### Análise dos Resultados
-* **Por que ocorrem perdas sem sincronização:** Mesmo parecendo simples, a operação `+= 1` não é atômica. Ela envolve ler o valor da memória, somar 1 e salvar o resultado. Quando várias threads rodam juntas sem controle, o sistema operacional alterna entre elas no meio desse processo, fazendo uma thread sobrescrever o valor que outra acabou de calcular.
-* **Por que o semáforo resolve:** O `threading.Semaphore(1)` funciona como um cadeado binário. Apenas uma thread entra na seção crítica por vez (`acquire`), garante a atualização e libera o acesso (`release`).
-* **Impacto no desempenho:** A versão sincronizada leva mais tempo para rodar porque as threads precisam esperar na fila e o sistema gasta tempo gerenciando esses bloqueios. Perdemos velocidade de execução (*throughput*), mas garantimos que nenhum dado seja perdido.
-* **Visibilidade de memória:** Assim como o conceito de *happens-before* em Java, o uso do semáforo em Python cria barreiras que garantem que a alteração feita por uma thread fique imediatamente visível para a próxima que entrar na seção crítica.
+Filosofo 0 -> pensando
+Filosofo 1 -> pensando
+Filosofo 2 -> pensando
+Filosofo 3 -> pensando
+Filosofo 4 -> pensando
+Filosofo 0 -> com fome
+Filosofo 0 pegou o garfo esquerdo (0)
+Filosofo 4 -> com fome
+Filosofo 3 -> com fome
+Filosofo 3 pegou o garfo esquerdo (3)
+Filosofo 4 pegou o garfo esquerdo (4)
+Filosofo 2 -> com fome
+Filosofo 1 -> com fome
+Filosofo 1 pegou o garfo esquerdo (1)
+Filosofo 2 pegou o garfo esquerdo (2)
 
-### Deadlock e Prevenção por Hierarquia
+Corrigido:
 
-O objetivo aqui foi forçar um deadlock real entre duas threads disputando dois locks (`lock_a` e `lock_b`) e depois corrigir o problema.
+Filosofo 0 -> pensando
+Filosofo 1 -> pensando
+Filosofo 2 -> pensando
+Filosofo 3 -> pensando
+Filosofo 4 -> pensando
+Filosofo 3 -> com fome
+Filosofo 3 adquiriu garfo 3
+Filosofo 3 -> comendo (garfos 3 e 4) | Refeicao 1
+Filosofo 4 -> com fome
+Filosofo 4 adquiriu garfo 0
+Filosofo 2 -> com fome
+Filosofo 2 adquiriu garfo 2
+Filosofo 1 -> com fome
+Filosofo 1 adquiriu garfo 1
+Filosofo 0 -> com fome
+Filosofo 3 -> pensando
+Filosofo 4 -> comendo (garfos 0 e 4) | Refeicao 1
+Filosofo 2 -> comendo (garfos 2 e 3) | Refeicao 1
+Filosofo 2 -> pensando
+Filosofo 1 -> comendo (garfos 1 e 2) | Refeicao 1
+Filosofo 3 -> com fome
+Filosofo 3 adquiriu garfo 3
+Filosofo 4 -> pensando
+Filosofo 0 adquiriu garfo 0
+Filosofo 3 -> comendo (garfos 3 e 4) | Refeicao 2
+Filosofo 2 -> com fome
+Filosofo 1 -> pensando
+Filosofo 2 adquiriu garfo 2
+Filosofo 0 -> comendo (garfos 0 e 1) | Refeicao 1
+Filosofo 4 -> com fome
+Filosofo 3 -> pensando
+Filosofo 2 -> comendo (garfos 2 e 3) | Refeicao 2
+Filosofo 1 -> com fome
+Filosofo 0 -> pensando
+Filosofo 1 adquiriu garfo 1
+Filosofo 4 adquiriu garfo 0
+Filosofo 4 -> comendo (garfos 0 e 4) | Refeicao 2
+Filosofo 3 -> com fome
+Filosofo 4 -> pensando
+Filosofo 2 -> pensando
+Filosofo 3 adquiriu garfo 3
+Filosofo 1 -> comendo (garfos 1 e 2) | Refeicao 2
+Filosofo 3 -> comendo (garfos 3 e 4) | Refeicao 3
+Filosofo 0 -> com fome
+Filosofo 0 adquiriu garfo 0
+Filosofo 2 -> com fome
+Filosofo 4 -> com fome
+Filosofo 3 -> pensando (encerrou)
+Filosofo 1 -> pensando
+Filosofo 2 adquiriu garfo 2
+Filosofo 0 -> comendo (garfos 0 e 1) | Refeicao 2
+Filosofo 2 -> comendo (garfos 2 e 3) | Refeicao 3
+Filosofo 0 -> pensando
+Filosofo 4 adquiriu garfo 0
+Filosofo 4 -> comendo (garfos 0 e 4) | Refeicao 3
+Filosofo 2 -> pensando (encerrou)
+Filosofo 1 -> com fome
+Filosofo 1 adquiriu garfo 1
+Filosofo 1 -> comendo (garfos 1 e 2) | Refeicao 3
+Filosofo 0 -> com fome
+Filosofo 4 -> pensando (encerrou)
+Filosofo 0 adquiriu garfo 0
+Filosofo 1 -> pensando (encerrou)
+Filosofo 0 -> comendo (garfos 0 e 1) | Refeicao 3
+Filosofo 0 -> pensando (encerrou)
+Simulacao concluida. Refeicoes por filosofo: [3, 3, 3, 3, 3]
 
-#### 1. Reprodução do Travamento (`deadlock_reproducao.py`)
-A `Thread-1` pega o `lock_a`, espera 50ms e tenta pegar o `lock_b`. Ao mesmo tempo, a `Thread-2` pega o `lock_b`, espera 50ms e tenta pegar o `lock_a`. Como cada uma segura o recurso que a outra precisa, o programa congela.
-
-**Log de execução:**
-```text
-Começando simulação de deadlock
-[14:22:10.123] [Thread-1] Tentando obter o Lock A...
-[14:22:10.124] [Lock-A] Lock A obtido com sucesso pela Thread-1.
-[14:22:10.124] [Thread-2] Tentando obter o Lock B...
-[14:22:10.124] [Lock-B] Lock B obtido com sucesso pela Thread-2.
-[14:22:10.175] [Thread-1] Tentando obter o Lock B (aguardando)...
-[14:22:10.176] [Thread-2] Tentando obter o Lock A (aguardando)...
-
-[DIAGNÓSTICO] O sistema travou. O deadlock foi reproduzido com sucesso.
-[DIAGNÓSTICO] As threads estão bloqueadas aguardando recursos mutuamente.
-```
-
-#### 2. Condições de Coffman Identificadas
-O travamento aconteceu porque as quatro condições necessárias ocorreram juntas:
-1. **Exclusão mútua:** Apenas uma thread pode segurar cada lock por vez.
-2. **Manter e esperar:** Cada thread segura um lock enquanto fica bloqueada esperando o segundo.
-3. **Não preempção:** O sistema não toma o lock à força; cada thread precisa terminar sua tarefa para liberar o recurso.
-4. **Espera circular:** `Thread-1` espera pela `Thread-2`, que por sua vez espera pela `Thread-1`.
-
-#### 3. Correção Aplicada (`deadlock_corrigido.py`)
-Para resolver o problema, definimos uma **ordem global de aquisição**: todas as threads são obrigadas a pegar sempre o `lock_a` primeiro e só depois o `lock_b`. Isso elimina diretamente a condição de **espera circular**, impedindo que o ciclo de bloqueio se forme.
-
-**Log de execução (versão corrigida):**
-```text
-Começando simulação corrigida
-[14:25:01.010] [T1] Iniciando transação seguindo a hierarquia global...
-[14:25:01.011] [T1] Lock A obtido (hierarquia respeitada).
-[14:25:01.032] [T1] Lock B obtido. Executando seção crítica segura!
-[14:25:01.053] [T1] Liberando Lock B e Lock A...
-[14:25:01.054] [T2] Iniciando transação seguindo a hierarquia global...
-[14:25:01.054] [T2] Lock A obtido (hierarquia respeitada).
-[14:25:01.075] [T2] Lock B obtido. Executando seção crítica segura!
-[14:25:01.096] [T2] Liberando Lock B e Lock A...
-
-[SUCESSO] Todas as threads concluíram a execução sem travar!
-```
-
-## Vídeo de Apresentação
-* **Link no YouTube:** 

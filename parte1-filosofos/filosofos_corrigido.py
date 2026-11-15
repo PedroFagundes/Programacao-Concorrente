@@ -14,7 +14,6 @@ def filosofo(p):
     esq = p
     dir = (p + 1) % N
 
-    # Hierarquia de recursos: menor indice primeiro, maior depois
     left = min(esq, dir)
     right = max(esq, dir)
 

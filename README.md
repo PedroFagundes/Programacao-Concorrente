@@ -23,6 +23,12 @@ python parte1-filosofos/filosofos_corrigido.py
 
 # Parte 2 - Contador com e sem semáforo
 python parte2-semaforo/contador_semaforo.py
+
+# Parte 3 - Reprodução do deadlock
+python parte3-deadlock/deadlock_reproducao.py
+
+# Parte 3 - Deadlock corrigido
+python parte3-deadlock/deadlock_corrigido.py
 ```
 
 ---
@@ -152,7 +158,6 @@ Na primeira versão (`rodar_sem_trava`), não usamos nenhum controle, o que gera
 
 Sobre o desempenho (throughput), a versão com semáforo demora bem mais para rodar porque as threads não conseguem executar o incremento ao mesmo tempo, ficando paradas na fila esperando o `release()`. Além disso, mesmo com o GIL do Python alternando a execução das threads, os comandos `acquire()` e `release()` funcionam como barreiras implícitas de memória, garantindo que cada thread sempre enxergue o valor mais recente gravado pela thread anterior.
 
-
 ### Tabela de Resultados (3 execuções)
 
 | Execução | Versão | Esperado | Obtido | Tempo (s) |
@@ -183,3 +188,44 @@ Valor esperado (T x M): 1600000
 ```
 
 ---
+
+## Parte 3 — Deadlock
+
+### Condições de Coffman e Correção
+Na reprodução do problema (`deadlock_reproducao.py`), temos duas threads (`Fluxo A` e `Fluxo B`) disputando duas travas (`trava_1` e `trava_2`) em ordens trocadas. O programa trava porque as 4 condições de Coffman acontecem ao mesmo tempo:
+* **Exclusão mútua:** Cada `Lock` só pode ser usado por uma thread por vez.
+* **Manter-e-esperar:** O `Fluxo A` segura a `trava_1` enquanto espera a `trava_2`, e o `Fluxo B` segura a `trava_2` enquanto espera a `trava_1`.
+* **Não preempção:** Nenhuma thread pode tirar a trava da outra à força; ela só libera quando terminar e chamar `release()`.
+* **Espera circular:** O `Fluxo A` espera pelo `Fluxo B` e o `Fluxo B` espera pelo `Fluxo A`, fechando um ciclo de bloqueio.
+
+Na versão corrigida (`deadlock_corrigido.py`), definimos uma **ordem global de aquisição**: tanto o `Fluxo A` quanto o `Fluxo B` são obrigados a pegar sempre a `trava_1` primeiro e depois a `trava_2`. Isso quebra a condição de **espera circular** e faz os dois fluxos terminarem sem travar.
+
+### Logs de execução
+
+**Com deadlock (travado):**
+```text
+[Fluxo A] Tentando pegar trava_1...
+[Fluxo A] Segurou trava_1
+[Fluxo B] Tentando pegar trava_2...
+[Fluxo B] Segurou trava_2
+[Fluxo A] Esperando trava_2...
+[Fluxo B] Esperando trava_1...
+
+Deadlock confirmado: Fluxo A e Fluxo B ficaram bloqueados.
+```
+
+**Corrigido:**
+```text
+[Fluxo A] Tentando pegar trava_1...
+[Fluxo A] Segurou trava_1
+[Fluxo B] Tentando pegar trava_1...
+[Fluxo A] Tentando pegar trava_2...
+[Fluxo A] Segurou trava_2 e executou
+[Fluxo A] Liberou as travas e terminou
+[Fluxo B] Segurou trava_1
+[Fluxo B] Tentando pegar trava_2...
+[Fluxo B] Segurou trava_2 e executou
+[Fluxo B] Liberou as travas e terminou
+
+Execucao concluida sem deadlock.
+```

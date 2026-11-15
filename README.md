@@ -1,10 +1,10 @@
 # TDE - Programação Concorrente
 
 **Link do vídeo no YouTube:** 
- 
+
 **Integrantes:**
-* Pedro Henrique Alves de Souza Fagundes
-* Yasmim Egidio
+- Pedro Henrique Alves de Souza Fagundes
+- Yasmim Egidio
 
 **Linguagem escolhida:** Python 
 
@@ -20,17 +20,17 @@ python parte1-filosofos/filosofos_deadlock.py
 
 # Parte 1 - Versão corrigida
 python parte1-filosofos/filosofos_corrigido.py
+```
 
+---
 
+## Parte 1 — Jantar dos Filósofos
 
-Jantar dos Filósofos
+### Relatório
+Temos 5 filósofos e 5 garfos na mesa, onde cada filósofo alterna entre pensar, ficar com fome e comer usando os dois garfos ao seu lado. Na versão ingênua (`filosofos_deadlock.py`), todos pegam o garfo da esquerda ao mesmo tempo e ficam esperando o da direita, causando deadlock porque ninguém larga o garfo que já pegou. Na versão corrigida (`filosofos_corrigido.py`), numeramos os garfos de 0 a 4 e forçamos cada filósofo a pegar primeiro o garfo de menor número e depois o de maior número. Isso elimina a **espera circular** de Coffman, pois o filósofo 4 pega o garfo 0 antes do 4, impedindo que feche um ciclo de espera na mesa. 
 
-Relatório
-
-Temos 5 filósofos e 5 garfos na mesa, onde cada filósofo alterna entre pensar, ficar com fome e comer usando os dois garfos ao seu lado.   Na versão ingênua (filosofos_deadlock.py), todos pegam o garfo da esquerda ao mesmo tempo e ficam esperando o da direita, causando deadlock porque ninguém larga o garfo que já pegou. Na versão corrigida (filosofos_corrigido.py), numeramos os garfos de 0 a 4 e forçamos cada filósofo a pegar primeiro o garfo de menor número e depois o de maior número. Isso elimina a espera circular de Coffman, pois o filósofo 4 pega o garfo 0 antes do 4, impedindo que feche um ciclo de espera na mesa. 
-
-Pseudocódigo e Justiça/Progresso
-
+### Pseudocódigo e Justiça/Progresso
+```text
 para cada filosofo p:
     left  = min(p, (p + 1) mod 5)
     right = max(p, (p + 1) mod 5)
@@ -44,10 +44,13 @@ para cada filosofo p:
         comer()
         liberar(garfos[right])
         liberar(garfos[left])
+```
+Sem o ciclo de bloqueio, o progresso é garantido porque sempre sobra um garfo livre para alguém comer. A justiça (evitar inanição) funciona porque os garfos são soltos rápido após comer e o tempo aleatório de espera evita que dois vizinhos travem o mesmo filósofo sempre.
 
-Logs de execução
-Com deadlock:
+### Logs de execução
 
+**Com deadlock:**
+```text
 Filosofo 0 -> pensando
 Filosofo 1 -> pensando
 Filosofo 2 -> pensando
@@ -63,9 +66,10 @@ Filosofo 2 -> com fome
 Filosofo 1 -> com fome
 Filosofo 1 pegou o garfo esquerdo (1)
 Filosofo 2 pegou o garfo esquerdo (2)
+```
 
-Corrigido:
-
+**Corrigido:**
+```text
 Filosofo 0 -> pensando
 Filosofo 1 -> pensando
 Filosofo 2 -> pensando
@@ -132,4 +136,6 @@ Filosofo 1 -> pensando (encerrou)
 Filosofo 0 -> comendo (garfos 0 e 1) | Refeicao 3
 Filosofo 0 -> pensando (encerrou)
 Simulacao concluida. Refeicoes por filosofo: [3, 3, 3, 3, 3]
+```
 
+---

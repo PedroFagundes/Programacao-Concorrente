@@ -28,17 +28,31 @@ def rodar_com_trava():
         finally:
             semaforo.release()
 
-threads = []
-inicio = time.time()
+esperado = T * M
+print(f"Valor esperado (T x M): {esperado}\n")
 
+# Teste 1: Sem semaforo
+lista_t1 = []
+inicio_1 = time.time()
 for _ in range(T):
     t = threading.Thread(target=rodar_sem_trava)
-    threads.append(t)
+    lista_t1.append(t)
     t.start()
-
-for t in threads:
+for t in lista_t1:
     t.join()
+fim_1 = time.time()
 
-fim = time.time()
-print(f"Esperado: {T * M}")
-print(f"Sem semaforo -> Obtido: {soma_sem_trava} | Tempo: {fim - inicio:.2f}s")
+print(f"[Sem semaforo] Obtido: {soma_sem_trava} | Perdidos: {esperado - soma_sem_trava} | Tempo: {fim_1 - inicio_1:.2f}s")
+
+# Teste 2: Com semaforo
+lista_t2 = []
+inicio_2 = time.time()
+for _ in range(T):
+    t = threading.Thread(target=rodar_com_trava)
+    lista_t2.append(t)
+    t.start()
+for t in lista_t2:
+    t.join()
+fim_2 = time.time()
+
+print(f"[Com semaforo] Obtido: {soma_com_trava} | Perdidos: {esperado - soma_com_trava} | Tempo: {fim_2 - inicio_2:.2f}s")

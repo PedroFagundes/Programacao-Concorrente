@@ -11,17 +11,6 @@ Repositório com as implementações e análises desenvolvidas para a disciplina
 ## Linguagem 
 O projeto foi desenvolvido em **Python 3** utilizando apenas a biblioteca padrão (`threading`, `time` e `sys`).
 
-## Estrutura de Pastas
-
-```text
-Programacao-Concorrente/
-├── parte2-semaforo/
-│   └── contador_semaforo.py
-├── parte3-deadlock/
-│   ├── deadlock_reproducao.py
-│   └── deadlock_corrigido.py
-└── README.md
-```
 
 ## Como Executar
 

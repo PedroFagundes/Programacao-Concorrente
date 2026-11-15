@@ -128,4 +128,4 @@ Começando simulação corrigida
 ```
 
 ## Vídeo de Apresentação
-* **Link no YouTube:** [Colocar o link do vídeo aqui]
+* **Link no YouTube:** 

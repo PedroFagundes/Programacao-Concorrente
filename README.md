@@ -1,10 +1,10 @@
 # TDE - Programação Concorrente
 
-**Link do vídeo no YouTube:** 
+**Link do vídeo no YouTube: https://youtu.be/-fIqvG4HVZw ** 
 
 **Integrantes:**
 - Pedro Henrique Alves de Souza Fagundes
-- Yasmim Egidio
+- Yasmim Egidio de Oliveira
 
 **Linguagem escolhida:** Python 
 
